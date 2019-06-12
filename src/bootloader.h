@@ -21,16 +21,18 @@ public:
 	virtual ~bootloader();
 	SerialPort * Port;
 
-	void test(vector <char> &);
-
 	int getModBusLoader();
 	int getNativeLoader();
 	int getLoaderID();
-	int readHexFile(vector<char> & image, int* , string);
+	int readHexFile (vector<char> &image, int* , string);
+	int writeHexFile(vector<char>  Image, int Baseadr , string);
 	int verifyImage();
 	int readImage (vector<char> & image, int, int  );
-	int writeImage(vector<char> , int* );
+	int writeImage(vector<char> Image, int Baseadr);
 	int cmprImages(vector<char> &image1 , vector<char> &image2);
+	int eraseFlash();
+	int restartDevice();
+
 
 	 int iFlashStartAdr=0; // базовый адрес прошивки из файла
 

@@ -144,7 +144,8 @@ int bootloader::getNativeLoader() {
 	case B9600: brate=9600; break;
 	case B38400: brate=38400; break;
 	case B115200: brate=115200; break;
-	default: brate=115200; break;
+	case B230400: brate= 230400; break;
+	default : cout<< "Aborted! Unsupported speed!"<<endl; return -1;
 	}
 
 	cout << "Set baudRate "<<brate<<" ... ";
@@ -547,21 +548,134 @@ int bootloader::cmprImages(vector<char> & image1, vector<char> & image2) {
 	return 0;
 }
 
-void bootloader::test( vector <char> & vc){
+int bootloader::writeImage(vector<char> Image, int Baseadr){
 
-	vc.clear();
+	char buf[512];
+	string str = "";
 
-	char * f= new char [256];
-	f[10]=static_cast<char>(0x33);
+	buf[0] = 'A';
+	Port->Write(buf, 1);
 
-	for(int i=0; i<100; i++ )vc.push_back(f[10]);
+	usleep(300);
 
-	delete(f);
+	buf[0] = 0;
+	buf[1] = 0;
+	buf[2] = static_cast<char>(Baseadr >> 16);
+	buf[3] = static_cast<char>(Baseadr >> 24);
 
-	cout<<"size = "<<vc.size()<<endl;
-	cout<<"[50] = "<<vc.at(50)<<endl;
+	if (Port->Write(buf, 4) == -1)
+		return -1;
+
+	while (Port->waitForReadyRead(300)) {
+		str += Port->readAll();
+	};
+	if (str == "") {
+		cout << "	Timeout 0" << endl;
+		return -1;
+	};
+
+	if(bootloader::eraseFlash()<0) return -1;
+
+	cout << "Writing Image to device ... 0% " << endl;
+
+	buf[0] = 'A';
+		Port->Write(buf, 1);
+
+		usleep(300);
+
+		buf[0] = 0;
+		buf[1] = 0;
+		buf[2] = static_cast<char>(Baseadr >> 16);
+		buf[3] = static_cast<char>(Baseadr >> 24);
+
+	if (Port->Write(buf, 4) == -1)
+		return -1;
+
+	while (Port->waitForReadyRead(300)) {
+		str += Port->readAll();
+	};
+	if (str == "") {
+		cout << "	Timeout 0" << endl;
+		return -1;
+	};
 
 
+	 for (int i = 0; i < Image.size() / 256; i++) {
+
+		buf[0] = 'P';
+
+		if (Port->Write(buf, 1) == -1)
+			return -1;
+
+		for(int j=0;j<256;j++){
+			buf[j]=Image.at(j+256*i);
+		}
+
+		if(Port->Write(buf, 256)==-1) {
+			cout << "	Timeout 1" << endl;
+						return -1;
+		};
+
+		str="";
+
+		if (!Port->waitForReadyRead(300, 1))  {
+			cout << "	Timeout2" << endl;
+			return -1;
+		};
+		 Port->readAll();
+
+		 int progres= 100*(i+1)/static_cast<int>(Image.size()/256);
+		 cout << "\x1b[1A" << "\x1b[0J" << "Writing Image to device ... ";
+		 cout << progres << "%" << endl; //стирание строки
+		 cout.flush();
+
+	};
+
+	return 0;
+}
+
+int bootloader::eraseFlash(){
+
+	char buf[512];
+	string str = "";
+
+	cout<<"Erase MCU flash ... ";
+
+	buf[0]='E';
+	if (Port->Write(buf, 1) == -1)
+			return -1;
+
+	while (Port->waitForReadyRead(300)) {
+		str += Port->readAll();
+	};
+
+	if(str!="EOK") {cout << "error"<<endl; return -1;};
+
+	cout<<"ok"<<endl;
+
+	return 0;
+}
+
+int bootloader::restartDevice(){
+
+
+	char buf[512];
+		string str = "";
+
+		cout<<"Restart MCU ... ";
+
+		buf[0]='R';
+		buf[1]='R';
+		if (Port->Write(buf, 2) == -1)
+				return -1;
+
+		while (Port->waitForReadyRead(300)) {
+			str += Port->readAll();
+		};
+
+		cout<<"ok"<<endl;
+
+		return 0;
 }
 
 } /* namespace std */

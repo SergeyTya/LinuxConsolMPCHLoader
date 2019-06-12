@@ -233,13 +233,13 @@ bool SerialPort::waitForReadyRead(int timeout , int size){
 
 	while(i<timeout && bytes!=size){
 		bts=bytes;
-		usleep(5000);
+		usleep(1000);
 		if(ioctl(fd, FIONREAD, &bytes)==-1) perror("Serial port error");
 		if(bytes==bts){i++;}else{i=0;};
 	}
 
 	if(bytes==size) return true;
-	cout<<bytes<<endl;
+
 	return false;
 
 }

@@ -3,7 +3,7 @@
 // Author      : SergeyTyagushev
 // Version     :
 // Copyright   : Your copyright notice
-// Description : Hello World in C++, Ansi-style
+// Description : Bootloader
 //============================================================================
 
 #include <iostream>
@@ -31,6 +31,7 @@ int select_input(int hlim, string str) {
 }
 
 int main() {
+START:
 	SerialPort  Port ;
 	bootloader  bl(&Port);
 	int res = -1;
@@ -48,8 +49,9 @@ LOADERSEL:
 	cout << "	[1] Use MPCH bootloader" << endl;
 	cout << "	[2] Use MCU 1986VE91T bootloader" << endl;
 	cout << "	[3] Test Modbus device " << endl;
+	cout << "	[4] Close port " << endl;
 
-	res = select_input(4, "Select action ... ");
+	res = select_input(5, "Select action ... ");
 
 	switch (res) {
 	case 0:
@@ -62,6 +64,7 @@ LOADERSEL:
 	case 3:
 		if (bl.getModBusLoader() == -1) goto LOADERSEL;
 		break;
+	case 4: Port.Close(); goto START;
 	default:
 		return 0;
 	}
@@ -85,18 +88,22 @@ BOOTMENU:
 	case 0:
 		return 0;
 	case 1:
+		cout<<endl<<"WRITING IMAGE TO DEVICE!"<<endl;
+		if(bl.readHexFile(bl.vcFileHexStrg, &(bl.iFlashStartAdr), "")==-1)return 0;
+		if(bl.writeImage(bl.vcFileHexStrg, bl.iFlashStartAdr )==-1) return 0;
+		cout<<endl<<"VERIFYING IMAGES!"<<endl;
+		if(bl.readImage  (bl.vcDevHexStrg , bl.vcFileHexStrg.size(),bl.iFlashStartAdr)==-1) return 0;
+		   bl.cmprImages(bl.vcDevHexStrg , bl.vcFileHexStrg );
 		break;
 	case 2:
 		cout<<endl<<"VERIFYING IMAGES!"<<endl;
 		if(bl.readHexFile(bl.vcFileHexStrg, &(bl.iFlashStartAdr), "")==-1)return 0;
-		 if(bl.readImage  (bl.vcDevHexStrg , bl.vcFileHexStrg.size(),bl.iFlashStartAdr)==-1) return 0;
-
+		if(bl.readImage  (bl.vcDevHexStrg , bl.vcFileHexStrg.size(),bl.iFlashStartAdr)==-1) return 0;
 		bl.cmprImages(bl.vcDevHexStrg , bl.vcFileHexStrg );
 		break;
 	case 3:
 		break;
-	case 4:
-		break;
+	case 4: bl.restartDevice(); Port.Close(); goto START;
 	}
 
 	cout<<endl;
@@ -111,10 +118,10 @@ BOOTMENU:
 	switch(res){
 	case 0: return 0;
 	case 1: goto BOOTMENU;
-	case 2: break;
-
+	case 2: bl.restartDevice(); Port.Close(); goto START;
 	};
 
+END:
 	Port.Close();
 
 	return 0;
