@@ -25,6 +25,7 @@ public:
 	int getNativeLoader();
 	int getLoaderID();
 	int readHexFile (vector<char> &image, int* , string);
+	int readHexFile2 (vector<char> &image, int* , string);
 	int writeHexFile(vector<char>  Image, int Baseadr , string);
 	int verifyImage();
 	int readImage (vector<char> & image, int, int  );

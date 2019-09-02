@@ -66,7 +66,7 @@ char16_t crc16::usMBCRC16( unsigned char * pucFrame, int usLen )
 }*/
 
 
-char16_t crc16::usMBCRC16(char * pucFrame, int usLen )
+unsigned short int crc16::usMBCRC16(char * pucFrame, int usLen )
 {
     unsigned char           ucCRCHi = 0xFF;
     unsigned char           ucCRCLo = 0xFF;
@@ -81,5 +81,5 @@ char16_t crc16::usMBCRC16(char * pucFrame, int usLen )
 
     pucFrame[usLen+1] =static_cast<char> (ucCRCLo) ;
     pucFrame[usLen+2] =static_cast<char> (ucCRCHi) ;
-    return static_cast<char16_t> ( ucCRCHi << 8 | ucCRCLo );
+    return static_cast<unsigned short int> ( ucCRCHi << 8 | ucCRCLo );
 }

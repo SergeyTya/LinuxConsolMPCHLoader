@@ -11,11 +11,12 @@
 #include <dirent.h>
 #include <list>
 #include <fcntl.h>
-#include <fstream>
 #include <vector>
 #include <sstream>
 #include <iomanip>
 #include <termios.h>
+
+//#include <fstream>
 
 #include "crc16.h"
 #include "bootloader.h"
@@ -332,7 +333,7 @@ int bootloader::readHexFile(vector<char> & image, int* FlashStartAdr,
 		path = cwd;
 		path += "/" + (*it);
 	};
-
+/*
 	fstream fs(path, fstream::in);
 	if (!fs.is_open()) {
 		perror("File IO error");
@@ -340,6 +341,15 @@ int bootloader::readHexFile(vector<char> & image, int* FlashStartAdr,
 	};
 
 	while (!fs.getline(buf, 256).eof()) {
+*/
+
+	FILE *file = fopen (path.c_str(), "r");
+	if (file == NULL){
+		perror("File IO error");
+				return -1;
+	};
+
+	while (fgets(buf,sizeof(buf),file)) {
 
 		str.assign(buf, 256);
 
@@ -436,6 +446,8 @@ int bootloader::readHexFile(vector<char> & image, int* FlashStartAdr,
 
 		delete(fulldata);
 	};
+
+	fclose(file);
 
 	/* если небыло последней записи - ошибка*/
 	if (!endfile && res == OK) {

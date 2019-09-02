@@ -11,7 +11,12 @@
 #include "SerialPort.h"
 #include "bootloader.h"
 
+#include <cstdio>
+
+
 using namespace std;
+
+void readfl();
 
 int select_input(int hlim, string str) {
 
@@ -29,6 +34,8 @@ int select_input(int hlim, string str) {
 
 	return i;
 }
+
+
 
 int main() {
 START:
