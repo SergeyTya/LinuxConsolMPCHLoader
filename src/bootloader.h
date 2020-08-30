@@ -21,7 +21,7 @@ public:
 	virtual ~bootloader();
 	SerialPort * Port;
 
-	int getModBusLoader();
+	int getModBusLoader(int adr,  bool getLoader);
 	int getNativeLoader();
 	int getLoaderID();
 	int readHexFile (vector<char> &image, int* , string);

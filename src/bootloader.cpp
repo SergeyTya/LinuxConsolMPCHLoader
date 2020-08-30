@@ -43,19 +43,21 @@ bootloader::~bootloader() {
 	// TODO Auto-generated destructor stub
 }
 
-int bootloader::getModBusLoader() {
+int bootloader::getModBusLoader(int adr=0, bool getLoader=false) {
 	//QByteArray  res;
 	string str = "";
-	int adr = -1;
 
-	while (adr < 1 || adr > 255) {
-		cout << "Enter Modbus address [1-255] ... ";
-		cin >> adr;
-		if (std::cin.fail()) {
-			std::cin.clear();
-			std::cin.ignore(32767, '\n');
-			std::cout << "Invalid input.  Please try again.\n";
-			adr = -1;
+	if (adr==0 or adr>255) {
+		adr = -1;
+		while (adr < 1 || adr > 255) {
+			cout << "Enter Modbus address [1-255] ... ";
+			cin >> adr;
+			if (std::cin.fail()) {
+				std::cin.clear();
+				std::cin.ignore(32767, '\n');
+				std::cout << "Invalid input.  Please try again.\n";
+				adr = -1;
+			}
 		}
 	}
 
@@ -88,11 +90,18 @@ int bootloader::getModBusLoader() {
 	free(req);
 
 SELECT:
-	cout<<"Go to MPCH bootloader mode? (y/n) ... " ;
-	string chs="";
-	cin>>chs;
-	if(chs=="n" || chs=="N") {return -1;}else if(chs=="y" || chs=="Y"){;} else {goto SELECT ;};
-
+	if(getLoader==false){
+		cout << "Go to MPCH bootloader mode? (y/n) ... ";
+		string chs = "";
+		cin >> chs;
+		if (chs == "n" || chs == "N") {
+			return -1;
+		} else if (chs == "y" || chs == "Y") {
+			;
+		} else {
+			goto SELECT;
+		};
+	}
 	req = new char[255] { static_cast<char>(adr), 0x06, 0x0, 0x0, 0x77, 0x77 };
 	crc16::usMBCRC16(req, 6);
 	Port->readAll();
