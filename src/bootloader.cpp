@@ -265,7 +265,7 @@ int bootloader::getLoaderID(){
 	return 0;
 }
 
-int bootloader::readHexFile(bootloader bl,
+int bootloader::readHexFile(bootloader * bl,
 		string path) {
 
 	bool endfile = false; //
@@ -279,7 +279,7 @@ int bootloader::readHexFile(bootloader bl,
 	string str = ""; // считанная строка
 	int res = 0; //возвращаемый резльтат
 
-	bl.vcFileHexStrg.clear();
+	bl->vcFileHexStrg.clear();
 
 	struct dirent ** namelist;
 	char cwd[PATH_MAX];
@@ -395,11 +395,11 @@ int bootloader::readHexFile(bootloader bl,
 				{
 			endfile = true;
 			// дополняем до размера кратного 256
-			while ((static_cast<uint>(bl.vcFileHexStrg.size() / 256)) * 256
-					!= bl.vcFileHexStrg.size()) {
-				bl.vcFileHexStrg.push_back(static_cast<char>(0xFF));
+			while ((static_cast<uint>(bl->vcFileHexStrg.size() / 256)) * 256
+					!= bl->vcFileHexStrg.size()) {
+				bl->vcFileHexStrg.push_back(static_cast<char>(0xFF));
 			};
-			cout << "Reading Image from file ... " << bl.vcFileHexStrg.size()
+			cout << "Reading Image from file ... " << bl->vcFileHexStrg.size()
 					<< " byte read!" << endl;
 			break;
 		};
@@ -411,7 +411,7 @@ int bootloader::readHexFile(bootloader bl,
 			if (adrcount == 0) //если в начале файла
 					{
 				adrcount = baseadr;
-				bl.iFlashStartAdr = baseadr;
+				bl->iFlashStartAdr = baseadr;
 			} else //если в середине файда
 			{
 				if (baseadr < adrcount) {
@@ -422,7 +422,7 @@ int bootloader::readHexFile(bootloader bl,
 				};
 				for (int i = 0; i < (baseadr - adrcount); i++) // заполняю дырку
 						{
-					bl.vcFileHexStrg.push_back(static_cast<char>(0xFF));
+					bl->vcFileHexStrg.push_back(static_cast<char>(0xFF));
 				};
 				adrcount = baseadr;
 			};
@@ -440,14 +440,14 @@ int bootloader::readHexFile(bootloader bl,
 			}
 			for (int i = 0; i < tmp; i++) //Добовление пропущенных байт
 					{
-				bl.vcFileHexStrg.push_back(static_cast<char>(0xFF));
+				bl->vcFileHexStrg.push_back(static_cast<char>(0xFF));
 			};
 
 			adrcount += tmp;
 		};
 
 		/*добавляем данные в буфер*/
-		for (int i = 0; i < size; i++)bl.vcFileHexStrg.push_back(fulldata[4 + i]);
+		for (int i = 0; i < size; i++)bl->vcFileHexStrg.push_back(fulldata[4 + i]);
 		/*счетчик адреса*/
 		adrcount += size;
 		/*счетчик строк*/
@@ -466,11 +466,11 @@ int bootloader::readHexFile(bootloader bl,
 	/* если завершено с ошибкой*/
 	if (res != OK) {
 		cout << "File read Error" << endl;
-		bl.vcFileHexStrg.clear();
+		bl->vcFileHexStrg.clear();
 		return res;
 	};
 
-	return bl.vcFileHexStrg.size();
+	return bl->vcFileHexStrg.size();
 }
 
 int bootloader::readImage(vector<char> & image, int size, int baseadr) {
