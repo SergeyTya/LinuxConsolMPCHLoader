@@ -55,7 +55,9 @@ START:
 
 		Port.name = argv[1];
 
-		bl.readHexFile(bl.vcFileHexStrg, &(bl.iFlashStartAdr), argv[5]);
+		bl.readHexFile(bl, argv[5]);
+
+		//return 0;
 
 		if (Port.Open(bdr) == -1) return 0;
 		bl.getModBusLoader(adr, true);
@@ -133,7 +135,7 @@ BOOTMENU:
 		return 0;
 	case 1:
 		cout<<endl<<"WRITING IMAGE TO DEVICE!"<<endl;
-		if(bl.readHexFile(bl.vcFileHexStrg, &(bl.iFlashStartAdr), "")==-1)return 0;
+		if(bl.readHexFile(bl, "")==-1)return 0;
 		if(bl.writeImage(bl.vcFileHexStrg, bl.iFlashStartAdr )==-1) return 0;
 		cout<<endl<<"VERIFYING IMAGES!"<<endl;
 		if(bl.readImage  (bl.vcDevHexStrg , bl.vcFileHexStrg.size(),bl.iFlashStartAdr)==-1) return 0;
@@ -141,7 +143,7 @@ BOOTMENU:
 		break;
 	case 2:
 		cout<<endl<<"VERIFYING IMAGES!"<<endl;
-		if(bl.readHexFile(bl.vcFileHexStrg, &(bl.iFlashStartAdr), "")==-1)return 0;
+		if(bl.readHexFile(bl, "")==-1)return 0;
 		if(bl.readImage  (bl.vcDevHexStrg , bl.vcFileHexStrg.size(),bl.iFlashStartAdr)==-1) return 0;
 		bl.cmprImages(bl.vcDevHexStrg , bl.vcFileHexStrg );
 		break;
