@@ -24,8 +24,8 @@ public:
 	int getModBusLoader(int adr,  bool getLoader);
 	int getNativeLoader();
 	int getLoaderID();
-	int readHexFile (bootloader * bl, string path);
-	int readHexFile2 (vector<char> &image, int* , string);
+	int readHexFile (string path);
+	//int readHexFile2 (vector<char> &image, int* , string);
 	int writeHexFile(vector<char>  Image, int Baseadr , string);
 	int verifyImage();
 	int readImage (vector<char> & image, int, int  );

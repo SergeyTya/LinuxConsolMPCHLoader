@@ -40,8 +40,10 @@ int select_input(int hlim, string str) {
 int main(int argc, char* argv[]) {
 START:
 	SerialPort  Port ;
-	bootloader  bl(&Port);
+	bootloader *  bl = new bootloader(&Port);
 	int res = -1;
+
+	bl->readHexFile( "");
 
 	if (argc > 1){
 		int bdr = stoi(argv[2]);
@@ -55,10 +57,14 @@ START:
 
 		Port.name = argv[1];
 
-		bl.readHexFile(&bl, "");
 
-		return 0;
 
+	}
+	return 0;
+}
+
+
+/*
 		if (Port.Open(bdr) == -1) return 0;
 		bl.getModBusLoader(adr, true);
 		if(bl.getLoaderID()==-1) return 0;
@@ -173,3 +179,4 @@ END:
 	return 0;
 
 }
+*/
