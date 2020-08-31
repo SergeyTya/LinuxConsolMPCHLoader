@@ -40,10 +40,10 @@ int select_input(int hlim, string str) {
 int main(int argc, char* argv[]) {
 START:
 	SerialPort  Port ;
-	bootloader *  bl = new bootloader(&Port);
+	bootloader bl(&Port);
 	int res = -1;
 
-	bl->readHexFile( "");
+	bl.readHexFile("");
 
 	if (argc > 1){
 		int bdr = stoi(argv[2]);

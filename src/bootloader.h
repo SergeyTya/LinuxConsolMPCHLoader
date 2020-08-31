@@ -14,6 +14,8 @@
 namespace std {
 
 class bootloader {
+
+
 public:
 
 
@@ -37,11 +39,14 @@ public:
 
 	 int iFlashStartAdr=0; // базовый адрес прошивки из файла
 
+
+
 	 vector <char> vcFileHexStrg; // Данные из файла
-	 vector <char> vcDevHexStrg; // Данные cчитанные из устройства файла
 
 
 private:
+
+	 vector <char> vcDevHexStrg; // Данные cчитанные из устройства файла
 
 	enum  resState{
 	       OK            =  0,
