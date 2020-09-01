@@ -43,8 +43,6 @@ START:
 	bootloader bl(&Port);
 	int res = -1;
 
-	bl.readHexFile("");
-
 	if (argc > 1){
 		int bdr = stoi(argv[2]);
 		int adr = stoi(argv[3]);
@@ -54,6 +52,8 @@ START:
 		cout<<"Modbus adr: "<< adr <<endl;
 		cout<<"Mode: "<<argv[4]<<endl;
 		cout<<"file: "<<argv[5]<<endl;
+
+		bl.readHexFile(argv[5]);
 
 		Port.name = argv[1];
 
