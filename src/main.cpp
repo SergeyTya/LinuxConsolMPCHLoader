@@ -57,28 +57,19 @@ START:
 
 		Port.name = argv[1];
 
-
-
-	}
-	return 0;
-}
-
-
-/*
 		if (Port.Open(bdr) == -1) return 0;
 		bl.getModBusLoader(adr, true);
 		if(bl.getLoaderID()==-1) return 0;
 
 		if ( ((string) argv[4]).find("flash") == 0) {
 			cout << endl << "WRITING IMAGE TO DEVICE!" << endl;
-			if (bl.writeImage(bl.vcFileHexStrg, bl.iFlashStartAdr) == -1)
-				return 0;
+			if (bl.writeImage() == -1) return 0;
+			bl.verifyImage();
 		};
 
 		if ( ((string) argv[4]).find("verify") == 0 ) {
 			cout<<endl<<"VERIFYING IMAGES!"<<endl;
-			if(bl.readImage  (bl.vcDevHexStrg , bl.vcFileHexStrg.size(),bl.iFlashStartAdr)==-1) return 0;
-			bl.cmprImages(bl.vcDevHexStrg , bl.vcFileHexStrg );
+			bl.verifyImage();
 		}
 
 		if ( ((string) argv[4]).find("reboot") == 0 ) {
@@ -141,17 +132,15 @@ BOOTMENU:
 		return 0;
 	case 1:
 		cout<<endl<<"WRITING IMAGE TO DEVICE!"<<endl;
-		if(bl.readHexFile(&bl, "")==-1)return 0;
-		if(bl.writeImage(bl.vcFileHexStrg, bl.iFlashStartAdr )==-1) return 0;
+		if(bl.readHexFile("")==-1)return 0;
+		if(bl.writeImage()==-1) return 0;
 		cout<<endl<<"VERIFYING IMAGES!"<<endl;
-		if(bl.readImage  (bl.vcDevHexStrg , bl.vcFileHexStrg.size(),bl.iFlashStartAdr)==-1) return 0;
-		   bl.cmprImages(bl.vcDevHexStrg , bl.vcFileHexStrg );
+		bl.verifyImage();
 		break;
 	case 2:
 		cout<<endl<<"VERIFYING IMAGES!"<<endl;
-		if(bl.readHexFile(&bl, "")==-1)return 0;
-		if(bl.readImage  (bl.vcDevHexStrg , bl.vcFileHexStrg.size(),bl.iFlashStartAdr)==-1) return 0;
-		bl.cmprImages(bl.vcDevHexStrg , bl.vcFileHexStrg );
+		if(bl.readHexFile("")==-1)return 0;
+		bl.verifyImage();
 		break;
 	case 3:
 		break;
@@ -179,4 +168,4 @@ END:
 	return 0;
 
 }
-*/
+

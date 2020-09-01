@@ -27,26 +27,22 @@ public:
 	int getNativeLoader();
 	int getLoaderID();
 	int readHexFile (string path);
-	//int readHexFile2 (vector<char> &image, int* , string);
-	int writeHexFile(vector<char>  Image, int Baseadr , string);
+	int writeHexFile(string path);
 	int verifyImage();
-	int readImage (vector<char> & image, int, int  );
-	int writeImage(vector<char> Image, int Baseadr);
-	int cmprImages(vector<char> &image1 , vector<char> &image2);
+	int writeImage();
+
 	int eraseFlash();
 	int restartDevice();
 
-
-	 int iFlashStartAdr=0; // базовый адрес прошивки из файла
-
-
-
-	 vector <char> vcFileHexStrg; // Данные из файла
-
-
 private:
 
+	int readImage (int size);
+	int cmprImages();
+
 	 vector <char> vcDevHexStrg; // Данные cчитанные из устройства файла
+	 vector <char> vcFileHexStrg; // Данные из файла
+	 int iFlashStartAdr=0; // базовый адрес прошивки из файла
+
 
 	enum  resState{
 	       OK            =  0,

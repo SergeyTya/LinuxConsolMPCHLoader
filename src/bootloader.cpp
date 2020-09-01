@@ -43,6 +43,13 @@ bootloader::~bootloader() {
 	// TODO Auto-generated destructor stub
 }
 
+int bootloader::verifyImage(){
+
+	if( readImage(vcFileHexStrg.size()) == -1) return -1;
+	cmprImages();
+	return 0;
+}
+
 int bootloader::getModBusLoader(int adr=0, bool getLoader=false) {
 	//QByteArray  res;
 	string str = "";
@@ -369,7 +376,7 @@ int bootloader::readHexFile(string path) {
 		size = stoi(str.substr(1, 2), 0, 16) + 4; // +4 так как служебная информация
 		crc = 0;
 
-		char * fulldata = new char(size);
+		char * fulldata = new char[size];
 
 		for (int i = 0; i < size; i++) {
 			fulldata[i] = stoi(str.substr(1 + i * 2, 2), 0, 16);
@@ -472,13 +479,13 @@ int bootloader::readHexFile(string path) {
 	return vcFileHexStrg.size();
 }
 
-int bootloader::readImage(vector<char> & image, int size, int baseadr) {
+int bootloader::readImage(int size) {
 
 	char buf[512];
 
 	string str = "";
 
-	image.clear();
+	vcDevHexStrg.clear();
 
 	buf[0] = 'A';
 	Port->Write(buf, 1);
@@ -487,8 +494,8 @@ int bootloader::readImage(vector<char> & image, int size, int baseadr) {
 
 	buf[0] = 0;
 	buf[1] = 0;
-	buf[2] = static_cast<char>(baseadr >> 16);
-	buf[3] = static_cast<char>(baseadr >> 24);
+	buf[2] = static_cast<char>(iFlashStartAdr >> 16);
+	buf[3] = static_cast<char>(iFlashStartAdr >> 24);
 
 	if (Port->Write(buf, 4) == -1)
 		return -1;
@@ -522,7 +529,7 @@ int bootloader::readImage(vector<char> & image, int size, int baseadr) {
 			return -1;
 		};
 
-		for (int k = 0; k < 256; k++) image.push_back(buf[k]);
+		for (int k = 0; k < 256; k++) vcDevHexStrg.push_back(buf[k]);
 
 		int progres = 100 * (i + 1) / static_cast<int>(size / 256);
 
@@ -532,21 +539,21 @@ int bootloader::readImage(vector<char> & image, int size, int baseadr) {
 	};
 
 	cout << "\x1b[1A" << "\x1b[0J";
-	cout << "Reading Image from device ..." << image.size() << " byte read!"
+	cout << "Reading Image from device ..." << vcDevHexStrg.size() << " byte read!"
 			<< endl;
 
 	return 0;
 };
 
-int bootloader::cmprImages(vector<char> & image1, vector<char> & image2) {
+int bootloader::cmprImages() {
 
 	bool res = false;
 	uint cnt = 0;
 
-	for (uint i = 0; i < image1.size(); i++) {
+	for (uint i = 0; i < vcDevHexStrg.size(); i++) {
 		cnt = i;
-		uint8_t r1 = image1.at(i);
-		uint8_t r2 = image2.at(i);
+		uint8_t r1 = vcDevHexStrg.at(i);
+		uint8_t r2 = vcFileHexStrg.at(i);
 		if ( r1!= r2) {
 			res = true;
 		};
@@ -554,9 +561,9 @@ int bootloader::cmprImages(vector<char> & image1, vector<char> & image2) {
 	if (res == true) {
 		cout << "Error: Image verify fault! " << endl;
 		cout << "	Image1[" << cnt << "]="
-				<< int_to_hex(static_cast<int>(image1.at(cnt))) << endl;
+				<< int_to_hex(static_cast<int>(vcDevHexStrg.at(cnt))) << endl;
 		cout << "	Image2[" << cnt << "]="
-				<< int_to_hex(static_cast<int>(image2.at(cnt))) << endl;
+				<< int_to_hex(static_cast<int>(vcFileHexStrg.at(cnt))) << endl;
 
 		res=false;
 	   return -1;
@@ -568,7 +575,7 @@ int bootloader::cmprImages(vector<char> & image1, vector<char> & image2) {
 	return 0;
 }
 
-int bootloader::writeImage(vector<char> Image, int Baseadr){
+int bootloader::writeImage(){
 
 	char buf[512];
 	string str = "";
@@ -580,8 +587,8 @@ int bootloader::writeImage(vector<char> Image, int Baseadr){
 
 	buf[0] = 0;
 	buf[1] = 0;
-	buf[2] = static_cast<char>(Baseadr >> 16);
-	buf[3] = static_cast<char>(Baseadr >> 24);
+	buf[2] = static_cast<char>(iFlashStartAdr >> 16);
+	buf[3] = static_cast<char>(iFlashStartAdr >> 24);
 
 	if (Port->Write(buf, 4) == -1)
 		return -1;
@@ -605,8 +612,8 @@ int bootloader::writeImage(vector<char> Image, int Baseadr){
 
 		buf[0] = 0;
 		buf[1] = 0;
-		buf[2] = static_cast<char>(Baseadr >> 16);
-		buf[3] = static_cast<char>(Baseadr >> 24);
+		buf[2] = static_cast<char>(iFlashStartAdr >> 16);
+		buf[3] = static_cast<char>(iFlashStartAdr >> 24);
 
 	if (Port->Write(buf, 4) == -1)
 		return -1;
@@ -620,7 +627,7 @@ int bootloader::writeImage(vector<char> Image, int Baseadr){
 	};
 
 
-	 for (int i = 0; i < Image.size() / 256; i++) {
+	 for (int i = 0; i < vcFileHexStrg.size() / 256; i++) {
 
 		buf[0] = 'P';
 
@@ -628,7 +635,7 @@ int bootloader::writeImage(vector<char> Image, int Baseadr){
 			return -1;
 
 		for(int j=0;j<256;j++){
-			buf[j]=Image.at(j+256*i);
+			buf[j]=vcFileHexStrg.at(j+256*i);
 		}
 
 		if(Port->Write(buf, 256)==-1) {
@@ -644,7 +651,7 @@ int bootloader::writeImage(vector<char> Image, int Baseadr){
 		};
 		 Port->readAll();
 
-		 int progres= 100*(i+1)/static_cast<int>(Image.size()/256);
+		 int progres= 100*(i+1)/static_cast<int>(vcFileHexStrg.size()/256);
 		 cout << "\x1b[1A" << "\x1b[0J" << "Writing Image to device ... ";
 		 cout << progres << "%" << endl; //стирание строки
 		 cout.flush();
